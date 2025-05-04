@@ -16,7 +16,7 @@ function validateTelegramAuth(initData) {
     const checkString = Object.keys(initData)
         .filter(k => k !== 'hash')
         .sort()
-        .map(k => `${k}=${initData[k]}`)
+        .map(k => ${k}=${initData[k]})
         .join('\n');
     const hmac = crypto.createHmac('sha256', secret).update(checkString).digest('hex');
     return hmac === initData.hash;
@@ -41,22 +41,28 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Send Message via Telegram Bot API
+// Function to send a Telegram message
 const sendMessageToUser = async (chatId, message) => {
-    const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`;
-    const response = await fetch(url, {
+    const url = https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage;
+    await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-        }),
+        body: JSON.stringify({ chat_id: chatId, text: message }),
     });
-    return response.json();
 };
+
+// Webhook for Telegram updates
+app.post('/webhook', async (req, res) => {
+    const message = req.body.message;
+    if (message && message.text === "/start") {
+        const chatId = message.chat.id;
+        await sendMessageToUser(chatId, "Welcome to IndiaTaskBot! Tap the menu button below to start earning.");
+    }
+    res.sendStatus(200);
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(Server running on port ${PORT});
 });
